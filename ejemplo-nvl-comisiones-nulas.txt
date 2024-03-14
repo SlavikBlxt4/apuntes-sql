@@ -1,0 +1,126 @@
+PROBLEMA DE LAS COMISIONES NULAS
+------------------------------------------------------------------
+Cuando quiero calcular el total de los sueldos de mis empleados del dpto 30 y hay comisiones nulas se producen problemas ya que al sumar algo con NULL el resultado es NULL.  Veamos cómo resolver este problema sin tocar las estructuras de las tablas ni sus datos:
+SQL> SELECT APELLIDO, SALARIO, COMISION
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+APELLIDO      SALARIO   COMISION
+---------- ---------- ----------
+ARROYO           1500        390
+SALA             1625        650
+MARTIN           1600       1020
+NEGRO            3005
+TOVAR            1350          0
+JIMENO           1335
+
+6 filas seleccionadas.
+
+SQL> SELECT APELLIDO, SALARIO, COMISION, SALARIO+COMISION "Total"
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+APELLIDO      SALARIO   COMISION      Total
+---------- ---------- ---------- ----------
+ARROYO           1500        390       1890
+SALA             1625        650       2275
+MARTIN           1600       1020       2620
+NEGRO            3005
+TOVAR            1350          0       1350
+JIMENO           1335
+
+6 filas seleccionadas.
+
+SQL> SELECT APELLIDO, SALARIO, COMISION, SALARIO+NVL(COMISION,0) "Total"
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+APELLIDO      SALARIO   COMISION      Total
+---------- ---------- ---------- ----------
+ARROYO           1500        390       1890
+SALA             1625        650       2275
+MARTIN           1600       1020       2620
+NEGRO            3005                  3005
+TOVAR            1350          0       1350
+JIMENO           1335                  1335
+
+6 filas seleccionadas.
+
+SQL> SELECT SUM(SALARIO+NVL(COMISION,0)) "Total"
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+     Total
+----------
+     12475
+
+SQL> SELECT SUM(SALARIO+COMISION) "Total"
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+     Total
+----------
+      8135
+
+SQL> SELECT APELLIDO, SALARIO, COMISION
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+APELLIDO      SALARIO   COMISION
+---------- ---------- ----------
+ARROYO           1500        390
+SALA             1625        650
+MARTIN           1600       1020
+NEGRO            3005
+TOVAR            1350          0
+JIMENO           1335
+
+6 filas seleccionadas.
+
+
+SI PUEDIERA MODIFICAR LOS DATOS Y LA ESTRUCTURA DE LA TABLA TODO SERÍA MÁS SENCILLO
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SQL> UPDATE EMPLE SET COMISION = 0
+  2  WHERE COMISION IS NULL;
+
+10 filas actualizadas.
+
+SQL> SELECT APELLIDO, SALARIO, COMISION
+  2  FROM EMPLE
+  3  WHERE DEPT_NO = 30;
+
+APELLIDO      SALARIO   COMISION
+---------- ---------- ----------
+ARROYO           1500        390
+SALA             1625        650
+MARTIN           1600       1020
+NEGRO            3005          0
+TOVAR            1350          0
+JIMENO           1335          0
+
+6 filas seleccionadas.
+
+SQL> ALTER TABLE EMPLE
+  2  ADD CONSTRAINT
+  3  NN_COMISION CHECK (COMISION IS NOT NULL);
+
+Tabla modificada.
+
+SQL> DESC EMPLE
+ Nombre                                    ┐Nulo?   Tipo
+ ----------------------------------------- -------- ----------------------------
+ EMP_NO                                    NOT NULL NUMBER(4)
+ APELLIDO                                           VARCHAR2(10)
+ OFICIO                                             VARCHAR2(10)
+ DIR                                                NUMBER(4)
+ FECHA_ALT                                          DATE
+ SALARIO                                            NUMBER(7)
+ COMISION                                           NUMBER(7)
+ DEPT_NO                                   NOT NULL NUMBER(2)
+
+SQL> INSERT INTO EMPLE VALUES (6969, 'LOLEZ', 'RED GALL', NULL, SYSDATE, 1600, NULL, 30);
+INSERT INTO EMPLE VALUES (6969, 'LOLEZ', 'RED GALL', NULL, SYSDATE, 1600, NULL, 30)
+*
+ERROR en lÝnea 1:
+ORA-02290: restricci┐┐n de control (SYS.NN_COMISION) violada

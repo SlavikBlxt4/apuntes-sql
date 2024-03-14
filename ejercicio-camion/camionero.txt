@@ -1,0 +1,46 @@
+CREATE TABLE CAMIONERO(
+	dni VARCHAR2(9),
+	nombre VARCHAR2(20),
+	direccion VARCHAR2(50),
+	poblacion VARCHAR2(50),
+	telefono INTEGER(9),
+	salario_anual INTEGER(6),
+	CONSTRAINT DNI PRIMARY KEY (dni)
+);
+
+CREATE TABLE PAQUETE(
+	codigo VARCHAR2(50),
+	destinatario VARCHAR2(50),
+	descripcion VARCHAR2(100),
+	direccion VARCHAR2(50),
+	dni_camionero VARCHAR2(9),
+	cod_provincia VARCHAR2(50),
+	CONSTRAINT PK_PAQUETE PRIMARY KEY (codigo),
+	CONSTRAINT FK_CAMIONERO_PAQUETE FOREIGN KEY (dni_camionero) REFERENCES CAMIONERO(dni),
+	CONSTRAINT FK_PAQUETE_PROVINCIA FOREIGN KEY (cod_provincia) REFERENCES PROVINCIA(cod_provincia),
+	CONSTRAINT UQ_CAMIONERO_PAQUETE UNIQUE (dni_camionero) -- Asegurar que solo un camionero distribuya varios paquetes
+);
+
+CREATE TABLE PROVINCIA(
+	cod_provincia VARCHAR2(50),
+	nombre VARCHAR2(20),
+	CONSTRAINT PK_PROVINCIA PRIMARY KEY (codigo)
+);
+
+CREATE TABLE CAMION(
+	matricula VARCHAR2(7),
+	modelo VARCHAR2(30),
+	tipo VARCHAR2(15),
+	potencia_cv INTEGER(3),
+	dni_camionero VARCHAR2(9),
+	CONSTRAINT MATRICULA PRIMARY KEY (matricula),
+	CONSTRAINT FK_CAMION_CAMIONERO FOREIGN KEY (dni_camionero) REFERENCES CAMIONERO(dni)
+);
+
+CREATE TABLE CAMIONERO_CAMION( -- Asegurar que varios camioneros lleven varios camiones
+    dni_camionero VARCHAR2(9),
+    matricula_camion VARCHAR2(7),
+    CONSTRAINT FK_CAMIONERO_CAMION_CAMIONERO FOREIGN KEY (dni_camionero) REFERENCES CAMIONERO(dni),
+    CONSTRAINT FK_CAMIONERO_CAMION_CAMION FOREIGN KEY (matricula_camion) REFERENCES CAMION(matricula),
+    CONSTRAINT PK_CAMIONERO_CAMION PRIMARY KEY (dni_camionero, matricula_camion)
+);

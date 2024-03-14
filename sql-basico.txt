@@ -1,0 +1,55 @@
+Empleados y su oficio de aquellos que cobran por debajo de 1500 euros
+SQL> SELECT EMP_NO, APELLIDO, OFICIO
+  2  FROM EMPLE
+  3  WHERE SALARIO <1500;
+
+
+Empleados de oficio "EMPLEADO" que cobran por debajo de 1500 euros
+
+SQL> SELECT EMP_NO, APELLIDO
+  2  FROM EMPLE
+  3  WHERE SALARIO <1500 AND OFICIO='EMPLEADO';
+
+Nombre y número del responsables de los empleados de oficio "EMPLEADO" que cobran por debajo de 1500 euros
+Primero saco los números de los responsables
+SQL> SELECT *
+  2  FROM EMPLE
+  3  WHERE ((SALARIO <1500) AND (OFICIO='EMPLEADO'));
+
+    EMP_NO APELLIDO   OFICIO            DIR FECHA_AL    SALARIO   COMISION
+---------- ---------- ---------- ---------- -------- ---------- ----------
+   DEPT_NO
+----------
+      7369 SANCHEZ    EMPLEADO         7902 17/12/90       1040
+        20
+
+      8876 ALONSO     EMPLEADO         7788 23/09/91       1430
+        20
+
+      7900 JIMENO     EMPLEADO         7698 03/12/91       1335
+        30
+
+Y ahora uno por uno voy mirando sus apellidos:
+SQL> SELECT EMP_NO, APELLIDO
+  2  FROM EMPLE
+  3  WHERE EMP_NO = 7698 OR EMP_NO = 7788 OR EMP_NO = 7902;
+
+    EMP_NO APELLIDO
+---------- ----------
+      7698 NEGRO
+      7788 GIL
+      7902 FERNANDEZ
+
+ATENCIÓN !!! ESTA CONSULTA LA MEJORAREMOS CUANDO VEAMOS SUBCONSULTAS !!!!
+
+Nombre y número de DEPARTAMENTO de los empleados de oficio "EMPLEADO" que cobran por debajo de 1500 euros en un ÚNICO SELECT !!!
+
+SQL> SELECT EMP_NO, APELLIDO, DEPART.DEPT_NO, DNOMBRE
+  2  FROM EMPLE, DEPART
+  3  WHERE (EMPLE.DEPT_NO=DEPART.DEPT_NO) AND (SALARIO <1500 AND OFICIO='EMPLEADO');
+
+    EMP_NO APELLIDO      DEPT_NO DNOMBRE
+---------- ---------- ---------- --------------
+      7369 SANCHEZ            20 INVESTIGACION
+      8876 ALONSO             20 INVESTIGACION
+      7900 JIMENO             30 VENTAS
